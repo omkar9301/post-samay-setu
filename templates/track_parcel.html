@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Parcel</title>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 30px;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0; /* Set dynamically */
+            transition: width 0.4s ease;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.8rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        td a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        input[type="text"] {
+            padding: 0.8rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Delivery System</div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Back</a></li>
+            <li><a href="/send-parcel">Send Parcel</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </header>
+
+    <div class="container">
+        <h1>Track Your Parcels</h1>
+
+        <h2>Sent Parcels</h2>
+        <table>
+            <tr>
+                <th>Tracking ID</th>
+                <th>Recipient ID</th>
+                <th>Status</th>
+                <th>Current Status</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+            {% for parcel in sent_parcels %}
+            <tr>
+                <td>{{ parcel[3] }}</td>
+                <td>{{ parcel[1] }}</td>
+                <td>{{ parcel[9] }}</td>
+                <td>{{ parcel[10] }}</td>
+                <td>{{ parcel[14] }}</td>
+                <td>{{ parcel[15] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Receiving Parcels</h2>
+        <table>
+            <tr>
+                <th>Tracking ID</th>
+                <th>Sender ID</th>
+                <th>Status</th>
+                <th>Current Status</th>
+                <th>Actions</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+            {% for parcel in receiving_parcels %}
+            <tr>
+                <td>{{ parcel[3] }}</td>
+                <td>{{ parcel[2] }}</td>
+                <td>{{ parcel[9] }}</td>
+                <td>{{ parcel[10] }}</td>
+                <td>{{ parcel[14] }}</td>
+                <td>{{ parcel[15] }}</td>
+                <td>
+                    <a href="{{ url_for('view_parcel_details', parcel_id=parcel[0]) }}">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Track by Tracking ID</h2>
+        <form method="GET" action="/track_parcel">
+            <input type="text" name="tracking_id" placeholder="Enter Tracking ID" required>
+            <button type="submit">Track</button>
+        </form>
+
+        {% if parcel %}
+        <h2>Parcel Details</h2>
+        <p><strong>Tracking ID:</strong> {{ parcel.tracking_id }}</p>
+        <p><strong>Current Status:</strong> {{ parcel.current_status }}</p>
+        <p><strong>Status:</strong> {{ parcel.status }}</p>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: {{ (parcel.progress | default(0)) }}%;">
+                {{ parcel.progress | default(0) }}%
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+        <a href="/privacy">Privacy Policy</a> | 
+        <a href="/terms">Terms of Service</a> | 
+        <a href="/help">Help Center</a>
+    </footer>
+</body>
+</html>

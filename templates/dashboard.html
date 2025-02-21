@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url("{{ url_for('static', filename='jesse-ramirez-YiSD-1eJ_1g-unsplash.jpg') }}") no-repeat center center/cover;
+            font-family: 'Arial', sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 2rem auto;
+            flex: 1;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--footer-bg);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--footer-bg);
+            margin-bottom: 1rem;
+        }
+
+        .functions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .functions a {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .functions a:hover {
+            background: var(--secondary-color);
+        }
+
+        .chatbot-logo {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-decoration: none;
+            margin: 1rem auto;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .chatbot-logo:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo"><strong>Delivery System</strong></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/send-parcel">Services</a></li>
+            <li><a href="/track_parcel">Tracking</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </header>
+
+    <section class="container">
+        <h1>Welcome, {{ user[1] }}</h1>
+        <p>Your Unique User ID: {{ user[7] }}</p>
+        <h2>Available Functions</h2>
+        <div class="functions">
+            <a href="/send-parcel">Send Parcel</a>
+            <a href="/track_parcel">Track Parcels</a>
+            <a href="/profile">Profile</a>
+            
+        </div>
+
+        <a href="/chatbot" class="chatbot-logo">Chatbot</a>
+    </section>
+
+    <footer class="footer">
+        <ul class="footer-links">
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/help">Help Center</a></li>
+        </ul>
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+    </footer>
+</body>
+</html>

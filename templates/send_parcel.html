@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Parcel</title>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url("{{ url_for('static', filename='kira-auf-der-heide-IPx7J1n_xUc-unsplash.jpg') }}") no-repeat center center/cover;
+            font-family: 'Arial', sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            flex: 1;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        form {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 5px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        button {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo"><strong>Delivery System</strong></div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Back</a></li>
+            <li><a href="/send-parcel">Send Parcel</a></li>
+            <li><a href="/track_parcel">Tracking</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </header>
+
+    <section class="container">
+        <h1>Send a Parcel</h1>
+        <form action="/send-parcel" method="POST">
+            <label for="recipient_id">Recipient Unique ID:</label>
+            <input type="text" id="recipient_id" name="recipient_id" required>
+
+            <label for="size">Parcel Size:</label>
+            <input type="text" id="size" name="size" required>
+
+            <label for="weight">Parcel Weight:</label>
+            <input type="text" id="weight" name="weight" required>
+
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+
+            <label for="delivery_option">Delivery Option:</label>
+            <select id="delivery_option" name="delivery_option" required>
+                <option value="Fast">Fast Delivery</option>
+                <option value="Regular">Regular Delivery</option>
+            </select>
+
+            <label for="insurance">
+                <input type="checkbox" id="insurance" name="insurance" value="Yes"> Parcel Insurance (for valuable items)
+            </label>
+
+            <button type="submit">Send Parcel</button>
+        </form>
+    </section>
+
+    <footer class="footer">
+        <ul class="footer-links">
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/help">Help Center</a></li>
+        </ul>
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+    </footer>
+</body>
+</html>

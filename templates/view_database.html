@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database View</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Database Contents</h1>
+
+    <h2>Users</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>location</th>
+            <th>Unique ID</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user['id'] }}</td>
+            <td>{{ user['name'] }}</td>
+            <td>{{ user['email'] }}</td>
+            <td>{{ user['phone'] }}</td>
+            <td>{{ user['address'] }}</td>
+            <td>{{ user['location'] }}</td>
+            <td>{{ user['unique_id'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Parcels</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Recipient ID</th>
+            <th>User ID</th>
+            <th>Tracking ID</th>
+            <th>Size</th>
+            <th>Weight</th>
+            <th>Description</th>
+            <th>Delivery Option</th>
+            <th>Insurance</th>
+            <th>Status</th>
+            <th>Current Status</th>
+            <th>Delivery Partner</th>
+            <th>Estimated Delivery Time</th>
+            <th>Time Slot</th>
+            <th>Date</th>
+            <th>Time</th>
+        </tr>
+        {% for parcel in parcels %}
+        <tr>
+            <td>{{ parcel['id'] }}</td>
+            <td>{{ parcel['recipient_id'] }}</td>
+            <td>{{ parcel['user_id'] }}</td>
+            <td>{{ parcel['tracking_id'] }}</td>
+            <td>{{ parcel['size'] }}</td>
+            <td>{{ parcel['weight'] }}</td>
+            <td>{{ parcel['description'] }}</td>
+            <td>{{ parcel['delivery_option'] }}</td>
+            <td>{{ parcel['insurance'] }}</td>
+            <td>{{ parcel['status'] }}</td>
+            <td>{{ parcel['current_status'] }}</td>
+            <td>{{ parcel['delivery_partner'] }}</td>
+            <td>{{ parcel['estimated_delivery_time'] }}</td>
+            <td>{{ parcel['time_slot'] }}</td>
+            <td>{{ parcel['sent_date']}}</td>
+            <td>{{ parcel['sent_time']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Delivery Partners</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Availability</th>
+            <th>username</th>
+            <th>password</th>
+        </tr>
+        {% for partner in delivery_partners %}
+        <tr>
+            <td>{{ partner['id'] }}</td>
+            <td>{{ partner['name'] }}</td>
+            <td>{{ partner['location'] }}</td>
+            <td>{{ partner['availability'] }}</td>
+            <td>{{ partner['username'] }}</td>
+            <td>{{ partner['password'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

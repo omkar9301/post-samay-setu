@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        form {
+            padding: 2rem;
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+        }
+
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        #map {
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div>Delivery System</div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/send-parcel">Services</a></li>
+            <li><a href="/track_parcel">Tracking</a></li>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </header>
+
+    <main>
+        <h1>User Profile</h1>
+        <form action="/profile" method="POST">
+            <label>Username:</label>
+            <input type="text" name="username" value="{{ user[1] }}" required>
+            <label>Email:</label>
+            <input type="email" name="email" value="{{ user[3] }}" required>
+            <label>Phone:</label>
+            <input type="text" name="phone" value="{{ user[4] }}" required>
+            <label>Address:</label>
+            <input type="text" name="address" value="{{ user[5] }}" required>
+            
+            <label>Pin Location:</label>
+            <div id="map"></div>
+            <input type="hidden" name="location" id="location" value="{{ user[6] }}" required>
+
+            <button type="submit">Update Profile</button>
+        </form>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+        <a href="/privacy">Privacy Policy</a> |
+        <a href="/terms">Terms of Service</a> |
+        <a href="/help">Help Center</a>
+    </footer>
+
+    <script>
+        const userLocation = "{{ user[6] }}".split(',');
+        const map = L.map('map').setView([userLocation[0], userLocation[1]], 13);
+
+        // Load OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        const marker = L.marker(userLocation, { draggable: true }).addTo(map);
+
+        // Update location input on marker drag
+        marker.on('dragend', function (event) {
+            const position = event.target.getLatLng();
+            document.getElementById('location').value = position.lat + ',' + position.lng;
+        });
+
+        // Place marker on initial location
+        marker.setLatLng(userLocation);
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Delivery System</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url("{{ url_for('static', filename='claudio-schwarz-q8kR_ie6WnI-unsplash.jpg') }}") no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary-color);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: bold;
+            text-align: left;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        input {
+            padding: 0.75rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        button {
+            padding: 0.75rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            color: black;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Register</h1>
+        <form action="/register" method="POST" onsubmit="return validateForm()">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" id="email" required>
+            <p id="emailError" class="error">Invalid email format</p>
+
+            <label>Phone:</label>
+            <input type="text" name="phone" id="phone" required>
+            <p id="phoneError" class="error">Invalid phone number</p>
+
+            <label>Address:</label>
+            <input type="text" name="address" required>
+
+            <label>Password:</label>
+            <div class="password-wrapper">
+                <input type="password" name="password" id="password" required>
+                <span class="toggle-password"></span>
+            </div>
+
+            <label>Reconfirm Password:</label>
+            <input type="password" id="confirmPassword" required>
+            <p id="passwordError" class="error">Passwords do not match</p>
+
+            <label>Pin Location:</label>
+            <div id="map"></div>
+            <input type="hidden" name="location" id="location" required>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <footer class="footer">
+        &copy; 2024 Delivery System. All rights reserved.
+    </footer>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        }
+
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            let valid = true;
+
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                document.getElementById('emailError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            if (!/^\+?\d{10,15}$/.test(phone)) {
+                document.getElementById('phoneError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('phoneError').style.display = 'none';
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('passwordError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+
+            return valid;
+        }
+
+        const map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        const marker = L.marker([51.505, -0.09], { draggable: true }).addTo(map);
+
+        function updateLocation(position) {
+            document.getElementById('location').value = position.lat + ',' + position.lng;
+        }
+
+        marker.on('dragend', function (e) { updateLocation(e.target.getLatLng()); });
+        map.on('click', function (e) { marker.setLatLng(e.latlng); updateLocation(e.latlng); });
+    </script>
+</body>
+</html>

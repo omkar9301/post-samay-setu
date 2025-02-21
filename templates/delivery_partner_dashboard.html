@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .greeting-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .parcels-section {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+
+        .map-container {
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px; /* Optional: space between maps */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        select, input[type="text"], button {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        select, input[type="text"] {
+            width: 200px;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header class="navbar">
+        <div>Delivery System - Partner Dashboard</div>
+        <ul class="nav-links">
+            
+            <a href="/logout">Logout</a>
+        </ul>
+    </header>
+
+    <!-- Delivery Partner Dashboard Content -->
+    <main>
+        <!-- Section for Heading -->
+        <div class="header-section">
+            <h1>Delivery Partner Dashboard</h1>
+        </div>
+    
+        <!-- Section for Greeting -->
+        <div class="greeting-section">
+            {% if partner %}
+                <p>Welcome, {{ partner[1] }}!</p> <!-- Assuming partner[1] is the name -->
+            {% else %}
+                <p>Welcome, Delivery Partner!</p>
+            {% endif %}
+        </div>
+    
+        <!-- Section for Accepted Parcels -->
+        <div class="parcels-section">
+            <h2>Accepted Parcels</h2>
+        </div><br><br>
+            {% if accepted_parcels %}
+                <ul>
+                    {% for parcel in accepted_parcels %}
+                        <li>
+                            <p><strong>Tracking ID:</strong> {{ parcel[3] }}</p>
+                            <p><strong>Address:</strong> {{ parcel[5] }}</p>
+                            <p><strong>Current Status:</strong> {{ parcel[10] }}</p>
+                            <p><strong>Time Slot:</strong> {{ parcel[13] }}</p>
+                            <p><strong>Date:</strong> {{ parcel[14] }}</p>
+                            <p><strong>Time:</strong> {{ parcel[15] }}</p>
+                            <!-- Receiver Information -->
+                            {% set receiver = user_info[parcel[0]] %}
+                            {% if receiver %}
+                                <h3>Receiver Information</h3>
+                                <p><strong>Name:</strong> {{ receiver['user'][1] }}</p>
+                                <p><strong>Email:</strong> {{ receiver['user'][2] }}</p>
+                                <p><strong>Phone:</strong> {{ receiver['user'][3] }}</p>
+                                <p><strong>Address:</strong> {{ receiver['user'][4] }}</p>
+                                <p><strong>Location:</strong> {{ receiver['lat'] }}, {{ receiver['lon'] }}</p>
+                                
+                                <!-- Leaflet Map for Receiver's Location -->
+                                <div id="map-{{ parcel[0] }}" class="map-container"></div>
+                                <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+                                <script>
+                                    var map = L.map('map-{{ parcel[0] }}').setView([{{ receiver['lat'] if receiver['lat'] else 0 }}, {{ receiver['lon'] if receiver['lon'] else 0 }}], 13);
+    
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    }).addTo(map);
+    
+                                    {% if receiver['lat'] and receiver['lon'] %}
+                                        L.marker([{{ receiver['lat'] }}, {{ receiver['lon'] }}]).addTo(map)
+                                            .bindPopup('Receiver Location: {{ receiver["user"][1] }}')
+                                            .openPopup();
+                                    {% endif %}
+                                </script>
+                            {% else %}
+                                <p>Receiver information not available.</p>
+                            {% endif %}
+    
+                            <form action="{{ url_for('update_status', parcel_id=parcel[0]) }}" method="post">
+                                <select name="status">
+                                    <option value="Dispatched">Dispatched</option>
+                                    <option value="In Transit">In Transit</option>
+                                    <option value="At Warehouse">At Warehouse</option>
+                                    <option value="Out for Delivery">Out for Delivery</option>
+                                    <option value="Delivered">Delivered</option>
+                                </select>
+                                <button type="submit">Update Status</button>
+                            </form>
+    
+                            <form action="{{ url_for('update_time_slot', parcel_id=parcel[0]) }}" method="POST">
+                                <input type="text" name="time_slot" placeholder="Enter New Time Slot" required>
+                                <button type="submit">Update Time Slot</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul><br>
+            {% else %}
+                <p>No accepted parcels at the moment.</p>
+            {% endif %}
+        
+    </main>
+    
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+        <a href="/privacy">Privacy Policy</a> |
+        <a href="/terms">Terms of Service</a> |
+        <a href="/help">Help Center</a>
+    </footer>
+
+</body>
+</html>

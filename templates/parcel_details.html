@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcel Details</title>
+    <style>
+        :root {
+            --primary-color: #800020;
+            --secondary-color: #FFD700;
+            --background-color: #FFFFF0;
+            --text-color: #2F4F4F;
+            --footer-bg: #000000;
+            --footer-text: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            text-align: center; /* Center the h2 */
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .details p {
+            margin: 10px 0;
+        }
+
+        label, input, select, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+        }
+
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .custom-slot-btn {
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: calc(33% - 10px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+        }
+
+        .active-slot {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .inactive-slot {
+            background-color: lightgray;
+            color: black;
+        }
+
+        #customSlotContainer {
+            display: none;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 1rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--footer-text);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .change-location-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .change-location-link a {
+            text-decoration: none;
+            
+            font-weight: bold;
+        }
+
+        .change-location-link a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div>Delivery System</div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Back</a></li>
+            <li><a href="/send-parcel">Send Parcel</a></li>
+            <li><a href="/track_parcel">Tracking</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </header>
+
+    <main>
+        <h1>Parcel Details</h1>
+        
+        <div class="container">
+            <div class="details">
+                <p><strong>Tracking ID:</strong> {{ parcel[3] }}</p>
+                <p><strong>Recipient ID:</strong> {{ parcel[1] }}</p>
+                <p><strong>Sender ID:</strong> {{ parcel[2] }}</p>
+                <p><strong>Parcel Size:</strong> {{ parcel[4] }}</p>
+                <p><strong>Parcel Weight:</strong> {{ parcel[5] }}</p>
+                <p><strong>Description:</strong> {{ parcel[6] }}</p>
+                <p><strong>Delivery Option:</strong> {{ parcel[7] }}</p>
+                <p><strong>Status:</strong> {{ parcel[9] }}</p>
+                <p><strong>Current Status:</strong> {{ parcel[10] }}</p>
+                <p><strong>Delivery Partner:</strong> {{ parcel[11] }}</p>
+                <p><strong>Estimated Delivery Time:</strong> {{ parcel[12] }}</p>
+            </div>
+
+            <h2>Delivery Time Slot Selection</h2>
+            <!-- Change Location link -->
+            <div class="change-location-link">
+                <a href="/profile">Change Location</a>
+            </div>
+
+            <!-- Check the parcel status to enable/disable time slot selection -->
+            {% set disabled = parcel[10] in ['At Warehouse', 'Out for Delivery', 'Delivered'] %}
+
+            <input type="text" id="address" placeholder="Enter Delivery Address" required {% if disabled %}disabled{% endif %}>
+
+            <select id="timeSlot" required {% if disabled %}disabled{% endif %}>
+                <option value="">Select Time Slot</option>
+                <option value="none">None of the above (Select Custom Time)</option>
+            </select>
+
+            <div id="customSlotContainer" {% if disabled %}style="display: none;"{% endif %}></div>
+
+            <button id="submit" {% if disabled %}disabled{% endif %}>Submit</button>
+            <div id="response"></div>
+            <input type="hidden" id="parcel_id" value="{{ parcel[0] if parcel else '' }}">
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Delivery System. All rights reserved.</p>
+        <a href="/privacy">Privacy Policy</a> |
+        <a href="/terms">Terms of Service</a> |
+        <a href="/help">Help Center</a>
+    </footer>
+
+    <script>
+        // Predefined custom time slots
+        const predefinedCustomSlots = ['10 AM - 11 AM', '12 PM - 1 PM', '2 PM - 3 PM', '4 PM - 5 PM', '6 PM - 7 PM'];
+
+        document.getElementById('address').addEventListener('input', function() {
+            const address = this.value;
+
+            fetch(`/suggest-slot?address=${encodeURIComponent(address)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const timeSlotSelect = document.getElementById('timeSlot');
+                    timeSlotSelect.innerHTML = '<option value="">Select Time Slot</option>';
+                    const customOption = document.createElement('option');
+                    customOption.value = 'none';
+                    customOption.textContent = 'None of the above (Select Custom Time)';
+                    timeSlotSelect.appendChild(customOption);
+
+                    if (data.slot) {
+                        const option = document.createElement('option');
+                        option.value = data.slot;
+                        option.textContent = `${data.slot}`;
+                        timeSlotSelect.appendChild(option);
+                    }
+                });
+        });
+
+        document.getElementById('timeSlot').addEventListener('change', function() {
+            const selectedSlot = this.value;
+            const customSlotContainer = document.getElementById('customSlotContainer');
+
+            if (selectedSlot === 'none') {
+                customSlotContainer.style.display = 'flex';
+                customSlotContainer.innerHTML = '';
+
+                predefinedCustomSlots.forEach(slot => {
+                    const button = document.createElement('button');
+                    button.classList.add('custom-slot-btn', 'inactive-slot');
+                    button.textContent = slot;
+
+                    button.addEventListener('click', function() {
+                        document.querySelectorAll('.custom-slot-btn').forEach(btn => btn.classList.replace('active-slot', 'inactive-slot'));
+                        this.classList.replace('inactive-slot', 'active-slot');
+                        document.getElementById('timeSlot').dataset.customSlot = slot;
+                    });
+
+                    customSlotContainer.appendChild(button);
+                });
+            } else {
+                customSlotContainer.style.display = 'none';
+                document.getElementById('timeSlot').dataset.customSlot = '';
+            }
+        });
+
+        document.getElementById('submit').addEventListener('click', function() {
+            const parcelId = document.getElementById('parcel_id').value;
+            const address = document.getElementById('address').value;
+            let timeSlot = document.getElementById('timeSlot').value;
+            const customSlot = document.getElementById('timeSlot').dataset.customSlot;
+
+            if (timeSlot === 'none' && customSlot) {
+                timeSlot = customSlot;
+            }
+
+            if (!address || !timeSlot) {
+                document.getElementById('response').textContent = 'Please fill out all fields.';
+                return;
+            }
+
+            fetch('/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ parcelId, address, timeSlot })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').textContent = data.message;
+            })
+            .catch(error => {
+                document.getElementById('response').textContent = 'Submission failed. Please try again.';
+            });
+        });
+    </script>
+</body>
+</html>

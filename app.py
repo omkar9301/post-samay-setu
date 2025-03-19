@@ -33,7 +33,9 @@ def init_db():
                 phone TEXT,
                 address TEXT,
                 location TEXT,
-                unique_id TEXT
+                unique_id TEXT,
+                security_question TEXT,
+                security_answer TEXT
             )
         ''')
 
@@ -77,6 +79,14 @@ def init_db():
 init_db()
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+DATABASE = 'delivery.db'
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 
 # Unique ID Generator
 def generate_unique_id():
@@ -145,20 +155,49 @@ def add_sample_delivery_partners():
 # add_sample_delivery_partners() #-------- only used when you have to update the database
 
 
+# def assign_delivery_partner(parcel_location):
+#     with sqlite3.connect('delivery.db') as conn:
+#         c = conn.cursor()
+#         # Find available delivery partners
+#         c.execute('SELECT * FROM delivery_partners WHERE availability = "Available"')
+#         partners = c.fetchall()
+
+#         if partners:
+#             selected_partner = partners[0][1]  # Get partner name (adjust as needed)
+#             print(f"Assigned delivery partner: {selected_partner}")  # Debugging print
+#             return selected_partner
+#         else:
+#             print("No available delivery partners")
+#             return None
+
 def assign_delivery_partner(parcel_location):
     with sqlite3.connect('delivery.db') as conn:
         c = conn.cursor()
+        
         # Find available delivery partners
-        c.execute('SELECT * FROM delivery_partners WHERE availability = "Available"')
+        c.execute('SELECT name FROM delivery_partners WHERE availability = "Available"')
         partners = c.fetchall()
-
-        if partners:
-            selected_partner = partners[0][1]  # Get partner name (adjust as needed)
-            print(f"Assigned delivery partner: {selected_partner}")  # Debugging print
-            return selected_partner
-        else:
+        
+        if not partners:
             print("No available delivery partners")
             return None
+
+        # Find the delivery partner with the least assigned parcels
+        min_parcels = None
+        selected_partner = None
+
+        for partner in partners:
+            partner_name = partner[0]
+            c.execute('SELECT COUNT(*) FROM parcels WHERE delivery_partner = ?', (partner_name,))
+            parcel_count = c.fetchone()[0]
+
+            if min_parcels is None or parcel_count < min_parcels:
+                min_parcels = parcel_count
+                selected_partner = partner_name
+
+        print(f"Assigned delivery partner: {selected_partner}")  # Debugging print
+        return selected_partner
+
 
 file_path = 'delivery_data.xlsx'  # Change to your file path
 
@@ -223,28 +262,6 @@ def view_database():
     # Render a simple HTML page to display the data
     return render_template('view_database.html', users=users, parcels=parcels, delivery_partners=delivery_partners)
 
-
-# # Registration Route
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = generate_password_hash(request.form['password'])
-#         email = request.form['email']
-#         phone = request.form['phone']
-#         address = request.form['address']
-#         location = request.form['location']
-#         unique_id = generate_unique_id()
-        
-#         with sqlite3.connect('delivery.db') as conn:
-#             c = conn.cursor()
-#             c.execute('INSERT INTO users (username, password, email, phone, address, location, unique_id) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-#                       (username, password, email, phone, address, location, unique_id))
-#             conn.commit()
-#         return redirect(url_for('login'))
-    
-#     return render_template('register.html')
-
 def is_valid_phone(phone):
     return re.match(r"^\+?\d{10,15}$", phone) is not None
 
@@ -257,6 +274,9 @@ def register():
         address = request.form['address']
         password = request.form['password']
         location = request.form['location']
+        security_question = request.form['security_question']
+        security_answer = request.form['security_answer']
+        unique_id = generate_unique_id()
 
         if not is_valid_phone(phone):
             flash("Invalid phone number format!", "danger")
@@ -273,9 +293,9 @@ def register():
                 flash("Email already registered!", "danger")
                 return redirect(url_for('register'))
 
-            c.execute('''INSERT INTO users (username, email, phone, address, password, location) 
-                         VALUES (?, ?, ?, ?, ?, ?)''', 
-                      (username, email, phone, address, password_hashed, location))
+            c.execute('''INSERT INTO users (username, email, phone, address, password, location, unique_id, security_question, security_answer) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                      (username, email, phone, address, password_hashed, location, unique_id, security_question, security_answer))
             conn.commit()
 
         flash("Registration successful! Please log in.", "success")
@@ -300,6 +320,66 @@ def login():
                 return redirect(url_for('dashboard'))
     
     return render_template('login.html')
+
+# Route to handle forgot password
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        db = get_db()
+        user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        if user:
+            # Send to security question
+            session['email'] = email
+            return redirect(url_for('security_question'))
+        else:
+            flash('Email not found.', 'danger')
+            return redirect(url_for('forgot_password'))
+    return render_template('forgot_password.html')
+
+
+@app.route('/security_question', methods=['GET', 'POST'])
+def security_question():
+    if 'email' not in session:
+        return redirect(url_for('login'))  # Redirect to login if no email in session
+
+    email = session['email']
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+
+    if request.method == 'POST':
+        answer = request.form['answer']
+        if answer.lower() == user['security_answer'].lower():
+            return redirect(url_for('reset_password'))
+        else:
+            flash('Incorrect answer to security question.', 'danger')
+            return redirect(url_for('security_question'))
+
+    return render_template('security_question.html', question=user['security_question'])
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if 'email' not in session:
+        return redirect(url_for('login'))  # Redirect to login if no email in session
+
+    email = session['email']
+    if request.method == 'POST':
+        print(request.form)  # Debugging: print the form data
+        new_password = request.form.get('password')  # Use get() to avoid KeyError
+        if new_password:
+            hashed_password = generate_password_hash(new_password)
+            db = get_db()
+            db.execute('UPDATE users SET password = ? WHERE email = ?', (hashed_password, email))
+            db.commit()
+            flash('Password reset successfully.', 'success')
+            session.pop('email', None)  # Remove the email from session after resetting
+            return redirect(url_for('login'))  # Redirect to the login page
+        else:
+            flash('Password cannot be empty.', 'danger')
+
+    return render_template('reset_password.html')
+
 
 # User Dashboard
 @app.route('/dashboard')
@@ -656,13 +736,13 @@ def chatbot_message():
     bot_response = "Sorry, I didn't understand that."
     
     if "track" in user_message.lower():
-        bot_response = "You can track your complaints on the [Track Complaints page]({}).".format(url_for('track_complaints'))
+        bot_response = "You can track your complaints on the [Track Complaints page]({})."
     elif "complaint" in user_message.lower():
-        bot_response = "You can submit a complaint by visiting the [Complaint page]({}).".format(url_for('complaint'))
+        bot_response = "You can submit a complaint by visiting the [Complaint page]({})."
     elif "help" in user_message.lower():
         bot_response = "How can I assist you today? Feel free to ask any questions!"
     elif "feedback" in user_message.lower():
-        bot_response = "You can submit feedback once your complaint is resolved on the [Feedback page]({}).".format(url_for('submit_feedback', complaint_id=123))  # Replace '123' with dynamic complaint ID if needed
+        bot_response = "You can submit feedback once your complaint is resolved on the [Feedback page]({})."  # Replace '123' with dynamic complaint ID if needed
     return bot_response
 
 @socketio.on('message')

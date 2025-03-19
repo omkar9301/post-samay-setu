@@ -24,6 +24,8 @@
             <th>Address</th>
             <th>location</th>
             <th>Unique ID</th>
+            <th>Security question</th>
+            <th>Security answer</th>
         </tr>
         {% for user in users %}
         <tr>
@@ -34,6 +36,8 @@
             <td>{{ user['address'] }}</td>
             <td>{{ user['location'] }}</td>
             <td>{{ user['unique_id'] }}</td>
+            <td>{{ user['security_question'] }}</td>
+            <td>{{ user['security_answer'] }}</td>
         </tr>
         {% endfor %}
     </table>

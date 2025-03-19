@@ -144,18 +144,42 @@
         <h2>Parcel Requests</h2>
         <table>
             <tr>
-                <th>Tracking ID</th>
-                <th>Sender ID</th>
+                <th>ID</th>
                 <th>Recipient ID</th>
-                <th>Parcel Info</th>
-                <th>Actions</th>
+                <th>User ID</th>
+                <th>Tracking ID</th>
+                <th>Size</th>
+                <th>Weight</th>
+                <th>Description</th>
+                <th>Delivery Option</th>
+                <th>Insurance</th>
+                <th>Status</th>
+                <th>Current Status</th>
+                <th>Delivery Partner</th>
+                <th>Estimated Delivery Time</th>
+                <th>Time Slot</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
             </tr>
             {% for parcel in parcels %}
             <tr>
-                <td>{{ parcel[3] }}</td>
+                <td>{{ parcel[0] }}</td>
                 <td>{{ parcel[1] }}</td>
                 <td>{{ parcel[2] }}</td>
-                <td>{{ parcel[4] }}, {{ parcel[5] }}, {{ parcel[6] }}</td>
+                <td>{{ parcel[3] }}</td>
+                <td>{{ parcel[4] }}</td>
+                <td>{{ parcel[5] }}</td>
+                <td>{{ parcel[6] }}</td>
+                <td>{{ parcel[7] }}</td>
+                <td>{{ parcel[8] }}</td>
+                <td>{{ parcel[9] }}</td>
+                <td>{{ parcel[10] }}</td>
+                <td>{{ parcel[11] }}</td>
+                <td>{{ parcel[12] }}</td>
+                <td>{{ parcel[13] }}</td>
+                <td>{{ parcel[14]}}</td>
+                <td>{{ parcel[15]}}</td>
                 <td>
                     <form action="/admin/approve/{{ parcel[0] }}" method="POST">
                         <button type="submit">Approve</button>
@@ -173,9 +197,6 @@
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2024 Delivery System. All rights reserved.</p>
-        <a href="/privacy">Privacy Policy</a> |
-        <a href="/terms">Terms of Service</a> |
-        <a href="/help">Help Center</a>
     </footer>
 
 </body>

@@ -1,0 +1,6 @@
+<form method="POST" action="{{ url_for('security_question') }}">
+    <!-- Form fields go here, like the security question input -->
+    <label for="answer">{{ question }}</label>
+    <input type="text" id="answer" name="answer" required>
+    <button type="submit">Submit</button>
+</form>

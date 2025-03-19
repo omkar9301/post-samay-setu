@@ -159,7 +159,7 @@
                     {% for parcel in accepted_parcels %}
                         <li>
                             <p><strong>Tracking ID:</strong> {{ parcel[3] }}</p>
-                            <p><strong>Address:</strong> {{ parcel[5] }}</p>
+                            <p><strong>Delivery Option:</strong> {{ parcel[7] }}</p>
                             <p><strong>Current Status:</strong> {{ parcel[10] }}</p>
                             <p><strong>Time Slot:</strong> {{ parcel[13] }}</p>
                             <p><strong>Date:</strong> {{ parcel[14] }}</p>
@@ -169,9 +169,9 @@
                             {% if receiver %}
                                 <h3>Receiver Information</h3>
                                 <p><strong>Name:</strong> {{ receiver['user'][1] }}</p>
-                                <p><strong>Email:</strong> {{ receiver['user'][2] }}</p>
-                                <p><strong>Phone:</strong> {{ receiver['user'][3] }}</p>
-                                <p><strong>Address:</strong> {{ receiver['user'][4] }}</p>
+                                <p><strong>Email:</strong> {{ receiver['user'][3] }}</p>
+                                <p><strong>Phone:</strong> {{ receiver['user'][4] }}</p>
+                                <p><strong>Address:</strong> {{ receiver['user'][5] }}</p>
                                 <p><strong>Location:</strong> {{ receiver['lat'] }}, {{ receiver['lon'] }}</p>
                                 
                                 <!-- Leaflet Map for Receiver's Location -->
@@ -222,9 +222,6 @@
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2024 Delivery System. All rights reserved.</p>
-        <a href="/privacy">Privacy Policy</a> |
-        <a href="/terms">Terms of Service</a> |
-        <a href="/help">Help Center</a>
     </footer>
 
 </body>
